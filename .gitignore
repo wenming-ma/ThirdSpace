@@ -1,6 +1,6 @@
 # Rust build artifacts
 target/
-
+winget-manifest/
 # Backup files
 **/*.rs.bk
 

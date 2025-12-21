@@ -12,6 +12,7 @@ async function loadConfig() {
         document.getElementById('targetLanguage').value = config.target_language || 'English';
         document.getElementById('hotkey').value = config.hotkey || 'Ctrl+Alt+T';
         document.getElementById('reasoning').checked = config.reasoning_enabled !== false;
+        document.getElementById('autostart').checked = config.autostart === true;
     } catch (e) {
         console.error('Failed to load config:', e);
     }
@@ -24,7 +25,8 @@ async function save() {
             model: document.getElementById('model').value,
             target_language: document.getElementById('targetLanguage').value,
             hotkey: document.getElementById('hotkey').value,
-            reasoning_enabled: document.getElementById('reasoning').checked
+            reasoning_enabled: document.getElementById('reasoning').checked,
+            autostart: document.getElementById('autostart').checked
         };
         await invoke('save_config', { newConfig: config });
     } catch (e) {
@@ -40,6 +42,13 @@ function toggleModelDropdown() {
         const query = document.getElementById('model').value;
         searchModels(query);
     }
+}
+
+function toggleAdvanced() {
+    const header = document.querySelector('.advanced-header');
+    const content = document.getElementById('advancedContent');
+    header.classList.toggle('expanded');
+    content.classList.toggle('expanded');
 }
 
 function selectModel(model) {

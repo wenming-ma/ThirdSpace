@@ -12,6 +12,7 @@ pub struct Config {
     pub target_language: String,
     pub reasoning_enabled: bool,
     pub hotkey: String,
+    pub autostart: bool,
 }
 
 impl Default for Config {
@@ -22,6 +23,7 @@ impl Default for Config {
             target_language: "English".to_string(),
             reasoning_enabled: true,
             hotkey: "Ctrl+Alt+T".to_string(),
+            autostart: false,
         }
     }
 }

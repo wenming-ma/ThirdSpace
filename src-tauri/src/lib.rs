@@ -19,6 +19,7 @@ use tauri::{
     tray::TrayIconBuilder,
     AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder,
 };
+use tauri_plugin_autostart::ManagerExt;
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri_plugin_global_shortcut::{Code, GlobalShortcutExt, Modifiers, Shortcut, ShortcutState};
 use tracing::{debug, error, info, Instrument};
@@ -68,6 +69,19 @@ async fn save_config(
         update_hotkey(&app, &state, &new_config.hotkey)?;
     }
 
+    // Update autostart if changed
+    let old_autostart = state.config.lock().unwrap().autostart;
+    if old_autostart != new_config.autostart {
+        let autostart_manager = app.autolaunch();
+        if new_config.autostart {
+            autostart_manager.enable().map_err(|e| e.to_string())?;
+            info!("Autostart enabled");
+        } else {
+            autostart_manager.disable().map_err(|e| e.to_string())?;
+            info!("Autostart disabled");
+        }
+    }
+
     // Save config
     *state.config.lock().unwrap() = new_config.clone();
     config::save(&new_config).map_err(|e| e.to_string())?;
@@ -77,6 +91,7 @@ async fn save_config(
         target_language = %new_config.target_language,
         reasoning = new_config.reasoning_enabled,
         hotkey = %new_config.hotkey,
+        autostart = new_config.autostart,
         "Settings saved"
     );
 
@@ -548,6 +563,10 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_shell::init())
+        .plugin(tauri_plugin_autostart::init(
+            tauri_plugin_autostart::MacosLauncher::LaunchAgent,
+            Some(vec!["--autostart"]),
+        ))
         .plugin(
             tauri_plugin_global_shortcut::Builder::new()
                 .with_handler(|app, shortcut, event| {

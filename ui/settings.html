@@ -381,6 +381,112 @@
             background: var(--border);
             border-radius: 4px;
         }
+
+        /* Advanced Settings Collapsible */
+        .advanced-section {
+            margin-top: 4px;
+        }
+
+        .advanced-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .advanced-header:hover {
+            border-color: var(--text-muted);
+            background: var(--bg-tertiary);
+        }
+
+        .advanced-header.expanded {
+            border-radius: 6px 6px 0 0;
+            border-bottom-color: transparent;
+        }
+
+        .advanced-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .advanced-icon {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 10px;
+        }
+
+        .advanced-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .advanced-chevron {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            font-size: 10px;
+            transition: transform 0.25s ease;
+        }
+
+        .advanced-header.expanded .advanced-chevron {
+            transform: rotate(180deg);
+        }
+
+        .advanced-content {
+            max-height: 0;
+            overflow: hidden;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            transition: max-height 0.25s ease, padding 0.25s ease;
+        }
+
+        .advanced-content.expanded {
+            max-height: 200px;
+            padding: 12px;
+        }
+
+        .advanced-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .advanced-item-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .advanced-item-label {
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .advanced-item-desc {
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 <body>
@@ -427,6 +533,29 @@
                         <span class="toggle-label">Enable</span>
                         <label class="toggle" for="reasoning">
                             <input type="checkbox" id="reasoning">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Settings -->
+            <div class="advanced-section">
+                <div class="advanced-header" onclick="toggleAdvanced()">
+                    <div class="advanced-header-left">
+                        <span class="advanced-icon">⚙</span>
+                        <span class="advanced-title">Advanced</span>
+                    </div>
+                    <span class="advanced-chevron">▼</span>
+                </div>
+                <div class="advanced-content" id="advancedContent">
+                    <div class="advanced-item">
+                        <div class="advanced-item-left">
+                            <span class="advanced-item-label">Start on boot</span>
+                            <span class="advanced-item-desc">Launch ThirdSpace when Windows starts</span>
+                        </div>
+                        <label class="toggle" for="autostart">
+                            <input type="checkbox" id="autostart">
                             <span class="toggle-slider"></span>
                         </label>
                     </div>

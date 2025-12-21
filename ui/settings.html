@@ -206,6 +206,21 @@
             color: var(--accent);
         }
 
+        .model-option.loading,
+        .model-option.error,
+        .model-option.empty {
+            color: var(--text-muted);
+            font-style: italic;
+            cursor: default;
+        }
+
+        .model-option.loading:hover,
+        .model-option.error:hover,
+        .model-option.empty:hover {
+            background: transparent;
+            color: var(--text-muted);
+        }
+
         /* Toggle */
         .toggle-field {
             display: flex;
@@ -390,17 +405,9 @@
                     <span class="tooltip-icon">?<span class="tooltip-text">Get keys at <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></span></span>
                 </div>
                 <div class="model-input-wrapper">
-                    <input type="text" id="model" placeholder="Select or enter model ID" spellcheck="false" autocomplete="off">
+                    <input type="text" id="model" placeholder="Type to search models..." spellcheck="false" autocomplete="off">
                     <button type="button" class="dropdown-btn" onclick="toggleModelDropdown()">&#9662;</button>
-                    <div class="model-dropdown" id="modelDropdown">
-                        <div class="model-option" onclick="selectModel('google/gemini-2.5-flash-preview-05-20')">google/gemini-2.5-flash-preview-05-20</div>
-                        <div class="model-option" onclick="selectModel('google/gemini-2.5-pro-preview')">google/gemini-2.5-pro-preview</div>
-                        <div class="model-option" onclick="selectModel('anthropic/claude-sonnet-4')">anthropic/claude-sonnet-4</div>
-                        <div class="model-option" onclick="selectModel('anthropic/claude-3.5-sonnet')">anthropic/claude-3.5-sonnet</div>
-                        <div class="model-option" onclick="selectModel('openai/gpt-4o')">openai/gpt-4o</div>
-                        <div class="model-option" onclick="selectModel('openai/gpt-4o-mini')">openai/gpt-4o-mini</div>
-                        <div class="model-option" onclick="selectModel('deepseek/deepseek-chat')">deepseek/deepseek-chat</div>
-                    </div>
+                    <div class="model-dropdown" id="modelDropdown"></div>
                 </div>
             </div>
 

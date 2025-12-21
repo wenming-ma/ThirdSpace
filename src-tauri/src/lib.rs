@@ -3,10 +3,17 @@ mod openrouter;
 mod prompt;
 
 use config::Config;
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 use std::time::{Duration, SystemTime};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ModelInfo {
+    pub id: String,
+    pub name: String,
+}
 use tauri::{
     menu::{Menu, MenuItem},
     tray::TrayIconBuilder,
@@ -41,6 +48,7 @@ pub struct AppState {
     pub config: Mutex<Config>,
     pub translate_in_flight: Mutex<bool>,
     pub current_shortcut: Mutex<Option<Shortcut>>,
+    pub models_cache: Mutex<Option<Vec<ModelInfo>>>,
 }
 
 #[tauri::command]
@@ -98,6 +106,42 @@ fn resume_hotkey(app: AppHandle, state: tauri::State<'_, AppState>) -> Result<()
         debug!("Hotkey resumed after recording");
     }
     Ok(())
+}
+
+#[tauri::command]
+async fn fetch_models(state: tauri::State<'_, AppState>) -> Result<Vec<ModelInfo>, String> {
+    // Check if we have cached models
+    {
+        let cache = state.models_cache.lock().unwrap();
+        if let Some(models) = cache.as_ref() {
+            debug!(count = models.len(), "Returning cached models");
+            return Ok(models.clone());
+        }
+    }
+
+    // Get API key from config
+    let api_key = {
+        let config = state.config.lock().unwrap();
+        config.api_key.clone()
+    };
+
+    if api_key.trim().is_empty() {
+        return Err("API key not configured".to_string());
+    }
+
+    // Fetch from OpenRouter
+    let models = openrouter::fetch_models(&api_key)
+        .await
+        .map_err(|e| e.to_string())?;
+
+    // Cache the results
+    {
+        let mut cache = state.models_cache.lock().unwrap();
+        *cache = Some(models.clone());
+    }
+
+    info!(count = models.len(), "Models fetched and cached");
+    Ok(models)
 }
 
 #[tauri::command]
@@ -528,6 +572,7 @@ pub fn run() {
             config: Mutex::new(config),
             translate_in_flight: Mutex::new(false),
             current_shortcut: Mutex::new(None),
+            models_cache: Mutex::new(None),
         })
         .setup(move |app| {
             // Setup system tray
@@ -570,7 +615,7 @@ pub fn run() {
             info!("ThirdSpace started");
             Ok(())
         })
-        .invoke_handler(tauri::generate_handler![get_config, save_config, translate, pause_hotkey, resume_hotkey])
+        .invoke_handler(tauri::generate_handler![get_config, save_config, translate, pause_hotkey, resume_hotkey, fetch_models])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
         .run(|_app, event| {

@@ -1,11 +1,13 @@
 use crate::config::Config;
 use crate::prompt;
+use crate::ModelInfo;
 use anyhow::{anyhow, Context, Result};
 use serde::{Deserialize, Serialize};
 use std::time::Instant;
 use tracing::{debug, error, info};
 
 const OPENROUTER_URL: &str = "https://openrouter.ai/api/v1/chat/completions";
+const OPENROUTER_MODELS_URL: &str = "https://openrouter.ai/api/v1/models";
 
 #[derive(Debug, Serialize)]
 struct ChatRequest {
@@ -174,4 +176,63 @@ fn preview(input: &str, limit: usize) -> String {
         out.push_str("...");
     }
     out
+}
+
+#[derive(Debug, Deserialize)]
+struct ModelsResponse {
+    data: Vec<ModelData>,
+}
+
+#[derive(Debug, Deserialize)]
+struct ModelData {
+    id: String,
+    name: String,
+}
+
+pub async fn fetch_models(api_key: &str) -> Result<Vec<ModelInfo>> {
+    let client = reqwest::Client::new();
+    let start = Instant::now();
+
+    debug!("Fetching models from OpenRouter");
+
+    let response = client
+        .get(OPENROUTER_MODELS_URL)
+        .bearer_auth(api_key)
+        .send()
+        .await
+        .context("send OpenRouter models request")?;
+
+    let status = response.status();
+    let body = response
+        .text()
+        .await
+        .context("read models response body")?;
+
+    let duration_ms = start.elapsed().as_millis();
+
+    if !status.is_success() {
+        error!(
+            status = %status,
+            duration_ms,
+            body_preview = %preview(&body, 400),
+            "OpenRouter models request failed"
+        );
+        return Err(anyhow!("OpenRouter error {}: {}", status, body));
+    }
+
+    info!(status = %status, duration_ms, "OpenRouter models response received");
+
+    let parsed: ModelsResponse = serde_json::from_str(&body).context("parse models response")?;
+
+    let models: Vec<ModelInfo> = parsed
+        .data
+        .into_iter()
+        .map(|m| ModelInfo {
+            id: m.id,
+            name: m.name,
+        })
+        .collect();
+
+    info!(count = models.len(), "Models parsed successfully");
+    Ok(models)
 }

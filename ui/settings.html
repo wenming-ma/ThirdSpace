@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d0d0f;
+            --bg-secondary: #16161a;
+            --bg-tertiary: #1e1e24;
+            --border: #2a2a32;
+            --text-primary: #e8e8ed;
+            --text-secondary: #8b8b96;
+            --text-muted: #5c5c66;
+            --accent: #00d4aa;
+            --accent-dim: rgba(0, 212, 170, 0.15);
+            --accent-glow: rgba(0, 212, 170, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', -apple-system, sans-serif;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .container {
+            padding: 24px 28px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), #00a88a);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 16px;
+            color: var(--bg-primary);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .header-text h1 {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: var(--text-primary);
+        }
+
+        .header-text p {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Form */
+        .form {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .field-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .label-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .field label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .field input, .field select {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-primary);
+            transition: all 0.15s ease;
+            outline: none;
+        }
+
+        .field input:focus {
+            border-color: var(--accent);
+            background: var(--bg-tertiary);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+
+        .field input::placeholder {
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Model dropdown */
+        .model-input-wrapper {
+            position: relative;
+            display: flex;
+        }
+
+        .model-input-wrapper input {
+            flex: 1;
+            border-radius: 6px 0 0 6px;
+            border-right: none;
+        }
+
+        .dropdown-btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-left: none;
+            border-radius: 0 6px 6px 0;
+            padding: 0 12px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 9px;
+            transition: all 0.15s ease;
+        }
+
+        .dropdown-btn:hover {
+            background: var(--border);
+            color: var(--text-secondary);
+        }
+
+        .model-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            z-index: 100;
+            max-height: 180px;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .model-dropdown.show {
+            display: block;
+        }
+
+        .model-option {
+            padding: 9px 12px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.1s ease;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .model-option:last-child {
+            border-bottom: none;
+        }
+
+        .model-option:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        /* Toggle */
+        .toggle-field {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            height: 100%;
+        }
+
+        .toggle-field .toggle-label {
+            font-size: 12px;
+            color: var(--text-primary);
+        }
+
+        .toggle {
+            position: relative;
+            width: 38px;
+            height: 20px;
+            display: inline-block;
+            cursor: pointer;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: var(--border);
+            border-radius: 20px;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(18px);
+            background: var(--bg-primary);
+        }
+
+        /* Tooltip */
+        .tooltip-icon {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text-muted);
+            font-size: 9px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: help;
+            position: relative;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .tooltip-icon:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+
+        .tooltip-icon .tooltip-text {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            transform: translateY(-50%);
+            margin-left: 8px;
+            font-size: 10px;
+            font-weight: 400;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            z-index: 200;
+            transition: opacity 0.15s ease;
+        }
+
+        .tooltip-icon .tooltip-text a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .tooltip-icon .tooltip-text a:hover {
+            text-decoration: underline;
+        }
+
+        .tooltip-icon:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Actions */
+        .actions {
+            padding-top: 18px;
+            margin-top: 6px;
+            border-top: 1px solid var(--border);
+        }
+
+        .save-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--accent), #00a88a);
+            border: none;
+            border-radius: 6px;
+            color: var(--bg-primary);
+            font-size: 12px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .save-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 24px var(--accent-glow);
+        }
+
+        .save-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Scrollbar */
+        .model-dropdown::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .model-dropdown::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        .model-dropdown::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">T</div>
+            <div class="header-text">
+                <h1>ThirdSpace</h1>
+                <p>AI Translation Utility</p>
+            </div>
+        </div>
+
+        <div class="form">
+            <div class="field">
+                <label>API Key</label>
+                <input type="password" id="apiKey" placeholder="OpenRouter API key" spellcheck="false" autocomplete="off">
+            </div>
+
+            <div class="field">
+                <div class="label-row">
+                    <label>Model</label>
+                    <span class="tooltip-icon">?<span class="tooltip-text">Get keys at <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></span></span>
+                </div>
+                <div class="model-input-wrapper">
+                    <input type="text" id="model" placeholder="Select or enter model ID" spellcheck="false" autocomplete="off">
+                    <button type="button" class="dropdown-btn" onclick="toggleModelDropdown()">&#9662;</button>
+                    <div class="model-dropdown" id="modelDropdown">
+                        <div class="model-option" onclick="selectModel('google/gemini-2.5-flash-preview-05-20')">google/gemini-2.5-flash-preview-05-20</div>
+                        <div class="model-option" onclick="selectModel('google/gemini-2.5-pro-preview')">google/gemini-2.5-pro-preview</div>
+                        <div class="model-option" onclick="selectModel('anthropic/claude-sonnet-4')">anthropic/claude-sonnet-4</div>
+                        <div class="model-option" onclick="selectModel('anthropic/claude-3.5-sonnet')">anthropic/claude-3.5-sonnet</div>
+                        <div class="model-option" onclick="selectModel('openai/gpt-4o')">openai/gpt-4o</div>
+                        <div class="model-option" onclick="selectModel('openai/gpt-4o-mini')">openai/gpt-4o-mini</div>
+                        <div class="model-option" onclick="selectModel('deepseek/deepseek-chat')">deepseek/deepseek-chat</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Target Language</label>
+                <input type="text" id="targetLanguage" placeholder="English, Chinese, Japanese..." spellcheck="false" autocomplete="off">
+            </div>
+
+            <div class="field-row">
+                <div class="field">
+                    <label>Hotkey</label>
+                    <input type="text" id="hotkey" placeholder="Press keys..." spellcheck="false" autocomplete="off" readonly>
+                </div>
+                <div class="field">
+                    <label>Reasoning</label>
+                    <div class="toggle-field">
+                        <span class="toggle-label">Enable</span>
+                        <label class="toggle" for="reasoning">
+                            <input type="checkbox" id="reasoning">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="save-btn" onclick="save()">Save Settings</button>
+        </div>
+    </div>
+    <script src="settings.js"></script>
+</body>
+</html>

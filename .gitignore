@@ -10,3 +10,7 @@ winget-manifest/
 *.swp
 *.swo
 *~
+
+# Build artifacts
+*.msi
+*.exe

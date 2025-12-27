@@ -2,7 +2,7 @@
 name = "thirdspace"
 version = "0.2.0"
 description = "AI-powered clipboard translation utility"
-authors = ["you"]
+authors = ["thirdspace"]
 edition = "2021"
 
 [lib]
